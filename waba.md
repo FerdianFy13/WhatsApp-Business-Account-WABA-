@@ -5,6 +5,7 @@
 # 1. OVERVIEW SYSTEM
 
 Sistem ini menggunakan:
+
 - WhatsApp Business Cloud API
 - Laravel Backend
 - Queue System
@@ -12,6 +13,7 @@ Sistem ini menggunakan:
 - Rule Engine + AI Hybrid Chatbot
 
 Tujuan:
+
 - Customer support automation
 - CRM WhatsApp
 - Notifikasi transaksi
@@ -37,11 +39,13 @@ User WhatsApp
 # 3. WHATSAPP BUSINESS CLOUD API
 
 ## Komponen
+
 - Access Token
 - Phone Number ID
 - WhatsApp Business Account (WABA)
 
 ## Karakteristik
+
 - Hosted by Meta :contentReference[oaicite:0]{index=0}
 - REST API
 - Real-time webhook event
@@ -51,7 +55,6 @@ User WhatsApp
 # 4. LARAVEL CLEAN ARCHITECTURE
 
 ## Folder Structure
-
 
 app/
 ├── Services/
@@ -76,7 +79,6 @@ app/
 │ ├── RuleEngine.php
 │ ├── IntentClassifier.php
 
-
 ---
 
 # 5. WHATSAPP SERVICE LAYER
@@ -100,15 +102,25 @@ class WhatsAppService
         return 'https://graph.facebook.com/v19.0/' . config('whatsapp.phone_number_id') . '/messages';
     }
 }
-6. WEBHOOK PROCESSING (ASYNC DESIGN)
+```
+
+# 6. WEBHOOK PROCESSING (ASYNC DESIGN)
+
 Controller
+
+```php id="svc001"
+
 public function handle(Request $request)
 {
     ProcessIncomingMessageAction::dispatch($request->all());
 
     return response('OK', 200);
 }
+```
+
 Action Layer
+
+```php id="svc001"
 class ProcessIncomingMessageAction
 {
     public function handle($data)
@@ -120,16 +132,23 @@ class ProcessIncomingMessageAction
         SendWhatsAppMessageJob::dispatch($message);
     }
 }
-7. QUEUE SYSTEM (WAJIB PRODUCTION)
+```
+
+# 7. QUEUE SYSTEM (WAJIB PRODUCTION)
 
 Kenapa pakai queue:
 
-Hindari timeout webhook
-Scaling tinggi
-Reliability
-php artisan queue:work
-8. RULE ENGINE CHATBOT
-Simple Rule Engine
+- Hindari timeout webhook
+- Scaling tinggi
+- Reliability
+- php artisan queue:work
+
+# 8. RULE ENGINE CHATBOT
+
+## Simple Rule Engine
+
+```php id="svc001"
+
 class RuleEngine
 {
     public function handle($text)
@@ -141,34 +160,45 @@ class RuleEngine
         };
     }
 }
-9. AI HYBRID CHATBOT (ADVANCED)
+```
+
+# 9. AI HYBRID CHATBOT (ADVANCED)
+
 Flow:
 
 Rule Engine → fallback AI
+
+```php id="svc001"
 
 if ($response = $ruleEngine->handle($text)) {
     return $response;
 }
 
 return $this->aiFallback($text);
-10. MESSAGE TYPES
+```
+
+# 10. MESSAGE TYPES
 
 Supported:
 
-text
-image
-document
-template message
-11. SECURITY LAYER
+- text
+- image
+- document
+- template message
+
+# 11. SECURITY LAYER
 
 Checklist:
 
-Validate webhook signature
-Verify token
-Rate limit endpoint
-Store logs safely
-12. DATABASE DESIGN
-messages table
+- Validate webhook signature
+- Verify token
+- Rate limit endpoint
+- Store logs safely
+
+# 12. DATABASE DESIGN
+
+```php id="svc001"
+messages table:
 id
 wa_id
 phone_number
@@ -177,11 +207,16 @@ type
 direction (in/out)
 status
 created_at
-13. OBSERVABILITY
-Log semua webhook
-Track message lifecycle
-Store API response
-14. ERROR HANDLING
+```
+
+# 13. OBSERVABILITY
+
+- Log semua webhook
+- Track message lifecycle
+- Store API response
+
+# 14. ERROR HANDLING
+
 Common Issues
 Token expired
 
@@ -195,19 +230,25 @@ API timeout
 
 → move to queue
 
-15. SCALABILITY DESIGN
+# 15. SCALABILITY DESIGN
+
 Queue worker scaling
 Redis queue recommended
 Horizontal scaling webhook
-16. SECURITY BEST PRACTICE
+
+# 16. SECURITY BEST PRACTICE
+
 Never expose token in logs
 Use env encryption
 Validate webhook origin
-17. DEPLOYMENT ENVIRONMENT
+
+# 17. DEPLOYMENT ENVIRONMENT
+
 HTTPS wajib
 Use supervisor for queue
 Separate staging & production WABA
-18. FINAL ARCHITECTURE SUMMARY
+
+# 18. FINAL ARCHITECTURE SUMMARY
 
 WhatsApp User
 → Meta Cloud API
